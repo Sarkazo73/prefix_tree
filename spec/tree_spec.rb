@@ -8,17 +8,17 @@ RSpec.describe Tree do
     let(:tree) { described_class.new }
 
     context 'when we add one word in tree' do
-      let(:word) { "test" }
+      let(:string) { "test" }
       before do
-        tree.add(word: word)
+        tree.add_string(string: string)
       end
 
       it 'method list output word' do
-        expect(tree.list).to contain_exactly(word)
+        expect(tree.list).to contain_exactly(string)
       end
 
       it 'method includes? check have thee this word' do
-        expect(tree.includes?(word: word)).to eq(true)
+        expect(tree.includes?(word: string)).to eq(true)
       end
     end
 
@@ -27,8 +27,8 @@ RSpec.describe Tree do
       let(:second_word) { "tests" }
 
       before do
-        tree.add(word: first_word)
-        tree.add(word: second_word)
+        tree.add_string(string: first_word)
+        tree.add_string(string: second_word)
       end
 
       it 'method list output words' do
@@ -45,7 +45,7 @@ RSpec.describe Tree do
       let(:nothing) { "" }
 
       before do
-        tree.add(word: nothing)
+        tree.add_string(string: nothing)
       end
 
       it 'method list don`t output' do
@@ -54,6 +54,25 @@ RSpec.describe Tree do
 
       it 'method includes? return false' do
         expect(tree.includes?(word: nothing)).to eq(false)
+      end
+    end
+
+    context 'when we add two-word string' do
+      let(:string) { "first second" }
+      let(:first_word) { "first" }
+      let(:second_word) { "second" }
+
+      before do
+        tree.add_string(string: string)
+      end
+
+      it 'method list output words which have string' do
+        expect(tree.list).to contain_exactly(first_word, second_word)
+      end
+
+      it 'method includes? check have thee this words' do
+        expect(tree.includes?(word: first_word)).to eq(true)
+        expect(tree.includes?(word: second_word)).to eq(true)
       end
     end
   end

@@ -84,6 +84,34 @@ RSpec.describe PrefixTree do
       end
     end
 
+    context 'when we input "save to zip" in variable "command"' do
+      before do
+        expect(prefix_tree).to receive_message_chain(:gets, :chomp!).and_return('save to zip')
+        expect(prefix_tree).to receive(:loop) do |&block|
+          block.call
+        end
+      end
+
+      it 'call add' do
+        expect(prefix_tree).to receive(:save_to_zip_file)
+        expect{ prefix_tree.call }.to output("write the command you want to do. programs have this command: add, includes?, list and end\n").to_stdout
+      end
+    end
+
+    context 'when we input "load from zip" in variable "command"' do
+      before do
+        expect(prefix_tree).to receive_message_chain(:gets, :chomp!).and_return('load from zip')
+        expect(prefix_tree).to receive(:loop) do |&block|
+          block.call
+        end
+      end
+
+      it 'call add' do
+        expect(prefix_tree).to receive(:load_from_zip_file)
+        expect{ prefix_tree.call }.to output("write the command you want to do. programs have this command: add, includes?, list and end\n").to_stdout
+      end
+    end
+
     context 'when we input "end" in variable "command"' do
 
       before do
@@ -91,7 +119,7 @@ RSpec.describe PrefixTree do
       end
 
       it 'check output' do
-        expect{ prefix_tree.call }.to output("write the command you want to do. programs have this command: add, includes?, list and end\ngood by\n").to_stdout
+        expect{ prefix_tree.call }.to output("write the command you want to do. programs have this command: add, includes?, list and end\ngoodbye\n").to_stdout
       end
     end
 
@@ -192,7 +220,6 @@ RSpec.describe PrefixTree do
     end
 
     it '' do
-      #File.open(filename, 'w') { |file| tree.list.each { |word| file.write("#{word}\n") } }
       prefix_tree.save_to_file
 
       expect(File.open(filename, 'r').read).to eq("qwer\nasdf\nzxcv\n")
@@ -212,11 +239,32 @@ RSpec.describe PrefixTree do
     end
 
     it '' do
-      # file_data = File.read(FILEMANE)
-      # @tree.add_string(string: file_data)
       expect(tree).to receive(:add_string).with(string: array_words)
 
       prefix_tree.load_from_file
+    end
+  end
+
+  describe '#save_to_zip_file and #load_from_zip_file' do
+    let(:tree) { Tree.new }
+    let(:array_words) { "qwer asdf zxcv" }
+    let(:first_word) { "qwer"}
+    let(:second_word) { "asdf"}
+    let(:third_word) { "zxcv"}
+    let(:prefix_tree) { described_class.new }
+
+    before do
+      allow(Tree).to receive(:new).and_return(tree)
+      allow(prefix_tree).to receive_message_chain(:gets, :chomp!).and_return(array_words)
+    end
+
+    it '' do
+      prefix_tree.add
+      prefix_tree.save_to_zip_file
+      tree.add_string(string: "test")
+      prefix_tree.load_from_zip_file
+
+      expect(tree.list).to contain_exactly(first_word, second_word, third_word)
     end
   end
 end

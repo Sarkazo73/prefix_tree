@@ -27,8 +27,14 @@ class PrefixTree
         save_to_file
       when "file load"
         load_from_file
+      when "save to zip"
+        save_to_zip_file
+      when "load from zip"
+        load_from_zip_file
+      when "delete"
+        delete!
       when "end"
-        puts "good by"
+        puts "goodbye"
         break
       else
         puts "program don't have this command"
@@ -60,22 +66,43 @@ class PrefixTree
     end
   end
 
+  def delete!
+    puts "write the word you want to delete"
+    word = gets.chomp!
+    @tree.delete!(word: word)
+
+    binding.pry
+
+  end
+
   def save_to_file
     File.open(FILEMANE, 'w') { |file| @tree.list.each { |word| file.write("#{word}\n") } }
   end
 
   def load_from_file
+    @tree.clean_tree
+
     file_data = File.read(FILEMANE)
 
     @tree.add_string(string: file_data)
   end
 
   def save_to_zip_file
+    save_to_file
 
-    Zip::File.open("data/file_zip", Zip::File::CREATE) { |zipfile| zipfile.add(FILEMANE, File.join(FILEMANE)) }
+    zip_file = File.new("data/file.zip", 'w')
 
+    Zip::File.open(zip_file.path, Zip::File::CREATE) { |zipfile| zipfile.add('words.txt', File.join(FILEMANE)) }
   end
 
+  def load_from_zip_file
+     zip_file = File.new("data/file.zip", 'r')
+
+    File.delete(FILEMANE) if File.exist?(FILEMANE)
+    Zip::File.open(zip_file.path, Zip::File) { |zipfile| zipfile.extract('words.txt' , File.join(FILEMANE))}
+
+    load_from_file
+
+  end
 end
 
- PrefixTree.new.call
